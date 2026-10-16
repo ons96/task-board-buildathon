@@ -25,8 +25,10 @@ function isInsideRoot(candidate, root) {
 function filePathForRequest(requestUrl) {
   const requestPath = decodeURIComponent(new URL(requestUrl, 'http://localhost').pathname);
   const relativePath = requestPath === '/' ? '/index.html' : requestPath;
-  const root = relativePath.startsWith('/src/') ? sourceRoot : publicRoot;
-  const candidate = normalize(join(root, relativePath));
+  const isSourceRequest = relativePath.startsWith('/src/');
+  const root = isSourceRequest ? sourceRoot : publicRoot;
+  const rootRelativePath = isSourceRequest ? relativePath.slice('/src/'.length) : relativePath;
+  const candidate = normalize(join(root, rootRelativePath));
   return isInsideRoot(candidate, root) ? candidate : null;
 }
 

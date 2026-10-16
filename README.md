@@ -61,11 +61,13 @@ npm test
 
 The tests cover planning, task defaults, status transitions, the Done gate, evidence, local-storage serialization, and required static entry points.
 
-## Optional Docker validation
+## Clean Linux rebuild
 
-Docker is not needed to run Task Board. It is included for clean Linux rebuilds and buildathon judging:
+Docker is not needed for normal local development. For a clean Linux checkout or buildathon-style validation, run:
 
 ```bash
+npm ci --offline
+npm test
 docker build -t task-board .
 docker run --rm --network none task-board npm test
 docker run --rm --network none -p 4173:4173 task-board
@@ -73,7 +75,7 @@ docker run --rm --network none -p 4173:4173 task-board
 
 Then open <http://127.0.0.1:4173>.
 
-The application itself makes no runtime network requests. The Docker image only packages the same small Node server and static files.
+The application itself makes no runtime network requests. The Docker image installs the lockfile offline and packages the same small Node server and static files.
 
 ## Project layout
 

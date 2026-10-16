@@ -1,0 +1,14 @@
+{
+  "name": "task-board",
+  "version": "1.0.0",
+  "private": true,
+  "description": "An offline-first evidence-based task board for maintainers and solo developers.",
+  "type": "module",
+  "scripts": {
+    "start": "node server.mjs",
+    "test": "node --test"
+  },
+  "engines": {
+    "node": ">=22.19.0"
+  }
+}

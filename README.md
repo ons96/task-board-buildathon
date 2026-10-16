@@ -66,6 +66,9 @@ The tests cover planning, task defaults, status transitions, the Done gate, evid
 Docker is not needed to run Task Board. It is included for clean Linux rebuilds and buildathon judging:
 
 ```bash
+docker build -t task-board .
+docker run --rm --network none task-board npm test
+docker run --rm --network none -p 4173:4173 task-board
 ```
 
 Then open <http://127.0.0.1:4173>.

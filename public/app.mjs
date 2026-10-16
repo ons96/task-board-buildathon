@@ -42,9 +42,12 @@ function taskById(id) {
 }
 
 function touch(task) {
+  const reopened = task.status === 'done' && !getDoneGate(task).allowed;
+  if (reopened) task.status = 'review';
   task.updatedAt = now();
   state.demoMode = false;
   persist();
+  if (reopened) showToast('The Done gate reopened this task in Review.', true);
 }
 
 function replaceTask(updatedTask) {

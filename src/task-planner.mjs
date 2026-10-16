@@ -81,18 +81,13 @@ function titleFromSource(lines) {
   return `${candidate.slice(0, 69).trimEnd()}...`;
 }
 
-function summaryFromSource(source, title) {
-  const withoutTitle = source.replace(linesToRegExp(title), '').trim();
-  const paragraph = withoutTitle.split(/\n\s*\n/)[0].trim();
+function summaryFromSource(source, lines) {
+  const body = lines.slice(1).join(' ').trim();
+  const paragraph = body.split(/\n\s*\n/)[0].trim();
   const candidate = paragraph || source.trim();
   if (!candidate) return 'Add a concise summary for this task.';
   if (candidate.length <= 180) return candidate;
   return `${candidate.slice(0, 177).trimEnd()}...`;
-}
-
-function linesToRegExp(value) {
-  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  return new RegExp(`^${escaped}`);
 }
 
 function classify(source) {
@@ -125,7 +120,7 @@ export function planTask(source, options = {}) {
   return createTask(
     {
       title,
-      summary: summaryFromSource(normalizedSource, title),
+      summary: summaryFromSource(normalizedSource, lines),
       type,
       sourceText: normalizedSource,
       acceptanceCriteria: criteria.map((text) => ({ text, verified: false })),

@@ -1,4 +1,5 @@
 import { createSampleTasks } from './sample-data.mjs';
+import { createTask } from './task-model.mjs';
 
 export const STORAGE_KEY = 'task-board:v1';
 
@@ -28,7 +29,9 @@ export function parseState(serialized, fallback = createInitialState()) {
     if (!parsed || !Array.isArray(parsed.tasks)) return fallback;
     return {
       schemaVersion: 1,
-      tasks: parsed.tasks,
+      tasks: parsed.tasks
+        .filter((task) => task && typeof task === 'object')
+        .map((task) => createTask(task)),
       selectedTaskId: typeof parsed.selectedTaskId === 'string' ? parsed.selectedTaskId : null,
       demoMode: parsed.demoMode === true,
     };

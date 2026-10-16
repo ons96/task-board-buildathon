@@ -59,6 +59,26 @@ test('Done is blocked until every criterion is verified and evidence exists', ()
   assert.equal(canCompleteTask(evidenceResult.task), true);
 });
 
+test('Done is blocked when a criterion has no text', () => {
+  const task = sampleTask({
+    acceptanceCriteria: [{ id: 'criterion-1', text: 'Valid before editing', verified: true }],
+    evidence: [{ id: 'evidence-1', kind: 'note', label: 'Review', content: 'Confirmed', createdAt: fixedNow }],
+  });
+  task.acceptanceCriteria[0].text = '   ';
+
+  assert.equal(canCompleteTask(task), false);
+  assert.deepEqual(getDoneGate(task).reasons, ['1 acceptance criterion needs text.']);
+});
+
+test('createTask downgrades an invalid Done task to Review', () => {
+  const task = createTask({
+    status: 'done',
+    acceptanceCriteria: [{ id: 'criterion-1', text: 'Not verified', verified: false }],
+  }, { now: fixedNow });
+
+  assert.equal(task.status, 'review');
+});
+
 test('transitionTask rejects a blocked Done move without mutating the task', () => {
   const task = sampleTask({ status: 'review' });
   const result = transitionTask(task, 'done', fixedNow);

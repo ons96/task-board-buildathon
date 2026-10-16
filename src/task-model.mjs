@@ -113,7 +113,7 @@ export function createTask(input = {}, options = {}) {
   const status = STATUSES.includes(input.status) ? input.status : 'inbox';
   const type = TASK_TYPES.includes(input.type) ? input.type : 'chore';
 
-  return {
+  const task = {
     id: text(input.id, idFactory('task')),
     title: text(input.title, 'Untitled task'),
     summary: text(input.summary, 'Add a concise summary for this task.'),
@@ -135,19 +135,37 @@ export function createTask(input = {}, options = {}) {
     createdAt: text(input.createdAt, now),
     updatedAt: text(input.updatedAt, now),
   };
+
+  if (task.status === 'done' && !canCompleteTask(task)) {
+    task.status = 'review';
+  }
+
+  return task;
 }
 
 export function getDoneGate(task) {
   const criteria = Array.isArray(task?.acceptanceCriteria) ? task.acceptanceCriteria : [];
-  const unverifiedCount = criteria.filter((criterion) => criterion.verified !== true).length;
+  const blankCount = criteria.filter((criterion) => typeof criterion?.text !== 'string' || criterion.text.trim().length === 0).length;
+  const unverifiedCount = criteria.filter((criterion) => (
+    typeof criterion?.text === 'string'
+    && criterion.text.trim().length > 0
+    && criterion.verified !== true
+  )).length;
   const evidenceCount = Array.isArray(task?.evidence) ? task.evidence.length : 0;
   const reasons = [];
 
   if (criteria.length === 0) {
     reasons.push('Add at least one acceptance criterion.');
-  } else if (unverifiedCount > 0) {
+  }
+  if (blankCount > 0) {
+    const label = blankCount === 1 ? 'acceptance criterion' : 'acceptance criteria';
+    const verb = blankCount === 1 ? 'needs' : 'need';
+    reasons.push(`${blankCount} ${label} ${verb} text.`);
+  }
+  if (unverifiedCount > 0) {
     const label = unverifiedCount === 1 ? 'acceptance criterion' : 'acceptance criteria';
-    reasons.push(`${unverifiedCount} ${label} still need verification.`);
+    const verb = unverifiedCount === 1 ? 'needs' : 'need';
+    reasons.push(`${unverifiedCount} ${label} still ${verb} verification.`);
   }
 
   if (evidenceCount === 0) {
